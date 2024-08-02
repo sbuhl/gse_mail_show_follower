@@ -58,7 +58,7 @@ class MailMail(models.Model):
         )
         return full_text
 
-    def _send(self, auto_commit=False, raise_exception=False, smtp_session=None):
+    def _send(self, auto_commit=False, raise_exception=False, smtp_session=None, alias_domain_id=False):
         group_portal = self.env.ref("base.group_portal")
         for mail_id in self.ids:
             mail = self.browse(mail_id)
@@ -68,7 +68,7 @@ class MailMail(models.Model):
                 ]
             ).mapped("recipient_ids")
             # if the email has a model, id and it belongs to the portal group
-            if mail.model and mail.res_id and group_portal:
+            if mail.model and mail.res_id and group_portal and not mail.subtype_id.internal:
                 obj = self.env[mail.model].browse(mail.res_id)
                 # those partners are obtained, who do not have a user and
                 # if they do it must be a portal, we exclude internal
@@ -154,4 +154,5 @@ class MailMail(models.Model):
             auto_commit=auto_commit,
             raise_exception=raise_exception,
             smtp_session=smtp_session,
+            alias_domain_id=False
         )
